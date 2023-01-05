@@ -1,6 +1,6 @@
 from ryanair import Ryanair
 from datetime import *
-import sys, pandas as pd, smtplib, ssl, numpy as np, math
+import os, sys, pandas as pd, smtplib, ssl, numpy as np, math
 
 try:
     origem     = sys.argv[1].upper()
@@ -9,6 +9,13 @@ except:
     print("\nINFORME origem do vôo e quantidade de passageiros\n")
     print("\npython travelcheap.py porto 2\n")
     exit(0)
+
+email = os.environ.get('travelcheap_email')
+password = os.environ.get('travelcheap_password')
+
+if email is None or password is None:
+    print("\nINFORME o email e senha, utiliznado as variaveis de ambiente, travelcheap_email e travelcheap_password.\n")
+    exit(1)
 
 cidades = {"PORTO" : "OPO", "LISBOA" : "LIS"}
 
@@ -54,8 +61,8 @@ flights = flights[['ida', 'origem', 'volta', 'destino', 'preco', 'pais_destino',
 flights.sort_values(by=['preco'], inplace=True)
 
 subject   = f"TRAVELCHEAP ALERTA [{str(datetime.now().date().strftime('%d/%m/%Y'))}]"
-sender    = "felipevilacha@gmail.com"
-receivers = ["felipevilacha@gmail.com"]
+sender    = email
+receivers = [email]
 
 email_flights = []
 delimiter     = "\n"
@@ -90,5 +97,5 @@ Corre! https://www.ryanair.com/
     """
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ssl.create_default_context()) as server:
-        server.login("felipevilacha@gmail.com", "dqgbkpvgsiywjlyo")
+        server.login(email, password)
         server.sendmail(sender, receiver, message)
